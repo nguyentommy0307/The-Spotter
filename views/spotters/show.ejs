@@ -5,6 +5,10 @@
     <h2>
         <%= spotters.location %>
     </h2>
+    <img src="<%= spotters.image %>  %>" alt="">
+    <p>
+        <%= spotters.description %>
+    </p>
     <p>
     <form action="/spotters/<%= spotters._id%>?_method=DELETE" method="POST">
         <button>Delete</button>

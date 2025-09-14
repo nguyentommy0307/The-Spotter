@@ -3,13 +3,29 @@
     <div>
         <a href="/spotters/new">Add Campground</a>
     </div>
-    <ul>
-        <% for (let spots of spotters) {%>
-            <li>
-                <a href="/spotters/<%= spots._id%>">
-                    <%= spots.title%>
-                </a>
-            </li>
+    <% for (let spots of spotters) {%>
+        <div class="card" mb-3>
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="img-fluid" alt="" src="<%= spots.image %>">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <%= spots.title %>
+                        </h5>
+                        <p class="card-text">
+                            <%= spots.description %>
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <%= spots.location %>
+                            </small>
+                        </p>
+                        <a class="btn btn-primary" href="/spotters/<%= spots._id  %>">View <%= spots.title %></a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <% } %>
-    </ul>
+        <% } %>

@@ -1,14 +1,37 @@
 <% layout('layouts/boilerplate') %>
-    <h1>New Gym</h1>
-    <form action="/spotters" method="POST">
-        <div>
-            <label for="title">Title</label>
-            <input type="text" id="title" name="spotter[title]">
+    <div class="row">
+        <h1 class="text-center">All Gyms</h1>
+        <div class="col-6 offset-3">
+            <form action="/spotters" method="POST">
+                <div class="mb-3">
+                    <label class='form-label' for="title">Title</label>
+                    <input class='form-control' type="text" id="title" name="spotter[title]">
+                </div>
+                <div class="mb-3">
+                    <label class='form-label' for="location">Location</label>
+                    <input class='form-control' type="text" id="location" name="spotter[location]">
+                </div>
+                <div class="mb-3">
+                    <label class='form-label' for="image">Image URL</label>
+                    <input class='form-control' type="text" id="image" name="spotter[image]">
+                </div>
+                <div class="mb-3">
+                    <label class='form-label' for="price">Price</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="Amount"
+                            name="spotter[price]">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class='form-label' for="description">description</label>
+                    <textarea class='form-control' type="text" id="description" name="spotter[description]"></textarea>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-success">Add Gym</button>
+                </div>
+            </form>
+            <a href="/spotters">All Gyms</a>
         </div>
-        <div>
-            <label for="location">Location</label>
-            <input type="text" id="location" name="spotter[location]">
-        </div>
-        <button>Add Gym</button>
-    </form>
-    <a href="/spotters">All Gyms</a>
+    </div>

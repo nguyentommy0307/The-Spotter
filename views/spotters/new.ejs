@@ -2,31 +2,38 @@
     <div class="row">
         <h1 class="text-center">All Gyms</h1>
         <div class="col-6 offset-3">
-            <form action="/spotters" method="POST">
+            <form action="/spotters" method="POST" novalidate class="validated-form">
                 <div class="mb-3">
                     <label class='form-label' for="title">Title</label>
-                    <input class='form-control' type="text" id="title" name="spotter[title]">
+                    <input class='form-control' type="text" id="title" name="spotter[title]" required>
+                    <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="location">Location</label>
-                    <input class='form-control' type="text" id="location" name="spotter[location]">
+                    <input class='form-control' type="text" id="location" name="spotter[location]" required>
+                    <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="image">Image URL</label>
-                    <input class='form-control' type="text" id="image" name="spotter[image]">
+                    <input class='form-control' type="text" id="image" name="spotter[image]" required>
+                    <div class="valid-feedback">Looks good!</div>
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="price">Price</label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
                         <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="Amount"
-                            name="spotter[price]">
+                            name="spotter[price]" required>
+                        <div class="valid-feedback">Looks good!</div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class='form-label' for="description">description</label>
-                    <textarea class='form-control' type="text" id="description" name="spotter[description]"></textarea>
+                    <textarea class='form-control' type="text" id="description" name="spotter[description]"
+                        required></textarea>
+                    <div class="valid-feedback">Looks good!</div>
+
                 </div>
                 <div class="mb-3">
                     <button class="btn btn-success">Add Gym</button>
@@ -35,3 +42,22 @@
             <a href="/spotters">All Gyms</a>
         </div>
     </div>
+
+    <script>
+        (() => {
+            'use strict'
+
+            const forms = document.querySelectorAll('.validated-form')
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>

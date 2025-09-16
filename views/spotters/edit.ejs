@@ -2,34 +2,45 @@
     <div class="row">
         <h1 class="text-center">Edit Gyms</h1>
         <div class="col-6 offset-3">
-            <form action="/spotters/<%= spotters._id%>?_method=PUT" method="POST">
+            <form action="/spotters/<%= spotters._id%>?_method=PUT" method="POST" novalidate class="validated-form">
                 <div class="mb-3">
                     <label class='form-label' for="title">Title</label>
                     <input class='form-control' type="text" id="title" name="spotter[title]"
-                        value="<%= spotters.title %>">
+                        value="<%= spotters.title %>" required>
+                    <div class="valid-feedback">Looks good!</div>
+
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="location">Location</label>
                     <input class='form-control' type="text" id="location" name="spotter[location]"
-                        value="<%= spotters.location %>">
+                        value="<%= spotters.location %>" required>
+                    <div class="valid-feedback">Looks good!</div>
+
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="image">Image URL</label>
                     <input class='form-control' type="text" id="image" name="spotter[image]"
-                        value="<%= spotters.image %>">
+                        value="<%= spotters.image %>" required>
+                    <div class="valid-feedback">Looks good!</div>
+
                 </div>
                 <div class="mb-3">
                     <label class='form-label' for="price">Price</label>
                     <div class="input-group">
                         <span class="input-group-text">$</span>
                         <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="Amount"
-                            name="spotter[price]" value="<%= spotters.price %>">
+                            name="spotter[price]" value="<%= spotters.price %>" required>
+                        <div class="valid-feedback">Looks good!</div>
+
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class='form-label' for="description">description</label>
-                    <textarea class='form-control' type="text" id="description"><%= spotters.description %></textarea>
+                    <textarea class='form-control' type="text" id="description"
+                        required><%= spotters.description %></textarea>
+                    <div class="valid-feedback">Looks good!</div>
+
                 </div>
                 <div class="mb-3">
                     <button class="btn btn-info">Edit Gym</button>

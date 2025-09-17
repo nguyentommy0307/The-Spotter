@@ -2,7 +2,9 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
-const catchAsync = require('./utils/catchAsync')
+const { spotterSchema } = require('./schemas.js')
+const catchAsync = require('./utils/catchAsync');
+const ExpressError = require('./utils/ExpressError')
 const methodOverride = require('method-override');
 const spotter = require('./models/spotter');
 
@@ -24,6 +26,17 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'));
 
+const validateSpotter = (req, res, next) => {
+    const { error } = spotterSchema.validate(req.body);
+
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
+
 app.get('/', (req, res) => {
     res.render('home');
 })
@@ -37,8 +50,7 @@ app.get('/spotters/new', (req, res) => {
     res.render('spotters/new')
 })
 
-app.post('/spotters', catchAsync(async (req, res, next) => {
-
+app.post('/spotters', validateSpotter, catchAsync(async (req, res, next) => {
     const GymSpot = new spotter(req.body.spotter);
     await GymSpot.save();
     res.redirect(`/spotters/${GymSpot._id}`)
@@ -55,7 +67,7 @@ app.get('/spotters/:id/edit', catchAsync(async (req, res) => {
     res.render('spotters/edit', { spotters })
 }))
 
-app.put('/spotters/:id', catchAsync(async (req, res) => {
+app.put('/spotters/:id', validateSpotter, catchAsync(async (req, res) => {
     const { id } = req.params;
     const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter })
     res.redirect(`/spotters/${Gymspot._id}`)
@@ -67,8 +79,14 @@ app.delete('/spotters/:id', catchAsync(async (req, res) => {
     res.redirect('/spotters');
 }))
 
+app.all(/(.*)/, (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
+})
+
 app.use((err, req, res, next) => {
-    res.send('Error! Something has gone wrong.')
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Something has gone wrong'
+    res.status(statusCode).render('error', { err });
 })
 
 app.listen(3000, () => {

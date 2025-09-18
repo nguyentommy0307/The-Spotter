@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
-const { spotterSchema } = require('./schemas.js')
+const { spotterSchema, reviewSchema } = require('./schemas.js')
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError')
 const methodOverride = require('method-override');
@@ -38,6 +38,16 @@ const validateSpotter = (req, res, next) => {
     }
 }
 
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
+
 app.get('/', (req, res) => {
     res.render('home');
 })
@@ -59,7 +69,7 @@ app.post('/spotters', validateSpotter, catchAsync(async (req, res, next) => {
 }))
 
 app.get('/spotters/:id', catchAsync(async (req, res) => {
-    const spotters = await spotter.findById(req.params.id)
+    const spotters = await spotter.findById(req.params.id).populate('reviews');
     res.render('spotters/show', { spotters })
 }))
 
@@ -80,7 +90,7 @@ app.delete('/spotters/:id', catchAsync(async (req, res) => {
     res.redirect('/spotters');
 }))
 
-app.post('/spotters/:id/reviews', catchAsync(async (req, res) => {
+app.post('/spotters/:id/reviews', validateReview, catchAsync(async (req, res) => {
     const spotters = await spotter.findById(req.params.id);
     const review = new Review(req.body.review);
     spotters.reviews.push(review);

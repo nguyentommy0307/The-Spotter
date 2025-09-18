@@ -7,6 +7,7 @@ const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError')
 const methodOverride = require('method-override');
 const spotter = require('./models/spotter');
+const Review = require('./models/review')
 
 
 mongoose.connect('mongodb://localhost:27017/the-spot');
@@ -71,12 +72,21 @@ app.put('/spotters/:id', validateSpotter, catchAsync(async (req, res) => {
     const { id } = req.params;
     const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter })
     res.redirect(`/spotters/${Gymspot._id}`)
-}));
+}))
 
 app.delete('/spotters/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await spotter.findByIdAndDelete(id);
     res.redirect('/spotters');
+}))
+
+app.post('/spotters/:id/reviews', catchAsync(async (req, res) => {
+    const spotters = await spotter.findById(req.params.id);
+    const review = new Review(req.body.review);
+    spotters.reviews.push(review);
+    await review.save();
+    await spotters.save();
+    res.redirect(`/spotters/${spotters._id}`)
 }))
 
 app.all(/(.*)/, (req, res, next) => {
@@ -92,3 +102,4 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
     console.log('Serving on port 3000');
 })
+

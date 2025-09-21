@@ -51,8 +51,13 @@
                         </h5>
                         <p class="card-text">
                             Review: <%= review.body %>
-                        </p </div>
+                        </p>
+                        <form action="/spotters/<%= spotters._id %>/reviews/<%= review._id %>?_method=DELETE"
+                            method="POST">
+                            <button class="btn-sm btn-danger">Delete</button>
+                        </form>
                     </div>
-                    <% } %>
                 </div>
+                <% } %>
         </div>
+    </div>

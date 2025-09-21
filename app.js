@@ -99,6 +99,13 @@ app.post('/spotters/:id/reviews', validateReview, catchAsync(async (req, res) =>
     res.redirect(`/spotters/${spotters._id}`)
 }))
 
+app.delete('/spotters/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    const { id, reviewId } = req.params;
+    await spotter.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/spotters/${id}`);
+}))
+
 app.all(/(.*)/, (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
 })

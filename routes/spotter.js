@@ -28,29 +28,39 @@ router.get('/new', (req, res) => {
 router.post('/', validateSpotter, catchAsync(async (req, res, next) => {
     const GymSpot = new spotter(req.body.spotter);
     await GymSpot.save();
+    req.flash('success', 'Successfully put in a new gym!');
     res.redirect(`/spotters/${GymSpot._id}`)
-
 }))
 
 router.get('/:id', catchAsync(async (req, res) => {
     const spotters = await spotter.findById(req.params.id).populate('reviews');
+    if (!spotters) {
+        req.flash('error', 'Cannot find that gym');
+        return res.redirect('/spotters');
+    }
     res.render('spotters/show', { spotters })
 }))
 
 router.get('/:id/edit', catchAsync(async (req, res) => {
-    const spotters = await spotter.findById(req.params.id)
-    res.render('spotters/edit', { spotters })
+    const spotters = await spotter.findById(req.params.id);
+    if (!spotters) {
+        req.flash('error', 'Cannot find that gym');
+        return res.redirect('/spotters');
+    }
+    res.render('spotters/edit', { spotters });
 }))
 
 router.put('/:id', validateSpotter, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter })
+    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
+    req.flash('success', 'Successfully updated gym information')
     res.redirect(`/spotters/${Gymspot._id}`)
 }))
 
 router.delete('/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await spotter.findByIdAndDelete(id);
+    req.flash('success', 'Successfully deleted gym')
     res.redirect('/spotters');
 }))
 

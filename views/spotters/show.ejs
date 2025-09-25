@@ -15,14 +15,25 @@
                     <li class="list-group-item text-muted">
                         <%= spotters.location %>
                     </li>
-                    <li class="list-group-item">$<%= spotters.price %>/month(including fees)</li>
-                    <li class="list-group-item">A third item</li>
+                    <li class="list-group-item">
+                        <% if (spotters.author) { %>
+                            Submitted by <%= spotters.author.username %>
+                                <% } else { %>
+                                    Submitted by an unknown user
+                                    <% } %>
+                    </li>
+                    <li class="list-group-item">$<%= spotters.price %>
+                    </li>
+                </ul>
+                <ul>
+                    <% if(currentUser && spotters.author.equals(currentUser._id)) {%>
                 </ul>
                 <div class="card-body">
                     <a href="/spotters/<%= spotters._id %>/edit" class="card-link btn btn-info">Edit</a>
                     <form class="d-inline" action="/spotters/<%= spotters._id%>?_method=DELETE" method="POST">
                         <button class="btn btn-danger">Delete</button>
                     </form>
+                    <% } %>
                 </div>
                 <div class="card-footer">
                     20 days ago

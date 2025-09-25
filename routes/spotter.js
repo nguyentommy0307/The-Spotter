@@ -31,13 +31,15 @@ router.get('/new', isLoggedIn, (req, res) => {
 
 router.post('/', isLoggedIn, validateSpotter, catchAsync(async (req, res, next) => {
     const GymSpot = new spotter(req.body.spotter);
+    GymSpot.author = req.user._id;
     await GymSpot.save();
     req.flash('success', 'Successfully put in a new gym!');
     res.redirect(`/spotters/${GymSpot._id}`)
 }))
 
 router.get('/:id', catchAsync(async (req, res) => {
-    const spotters = await spotter.findById(req.params.id).populate('reviews');
+    const spotters = await spotter.findById(req.params.id).populate('reviews').populate('author');
+    console.log(spotters);
     if (!spotters) {
         req.flash('error', 'Cannot find that gym');
         return res.redirect('/spotters');
@@ -46,17 +48,27 @@ router.get('/:id', catchAsync(async (req, res) => {
 }))
 
 router.get('/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
-    const spotters = await spotter.findById(req.params.id);
+    const { id } = req.params;
+    const spotters = await spotter.findById(id);
     if (!spotters) {
-        req.flash('error', 'Cannot find that gym');
-        return res.redirect('/spotters');
+        req.flash('error', 'Cannot find  that spot')
+        return res.redirect(`/spotters/${id}`)
+    }
+    if (!spotters.author.equals(req.user._id)) {
+        req.flash('error', 'You do not have permission to do that')
+        return res.redirect(`/spotters/${id}`)
     }
     res.render('spotters/edit', { spotters });
 }))
 
 router.put('/:id', isLoggedIn, validateSpotter, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
+    const Gymspot = await spotter.findById(id);
+    if (!Gymspot.author.equals(req.user._id)) {
+        req.flash('error', 'You do not have permission to do that')
+        return res.redirect(`/spotters/${id}`)
+    }
+    const gym = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
     req.flash('success', 'Successfully updated gym information')
     res.redirect(`/spotters/${Gymspot._id}`)
 }))

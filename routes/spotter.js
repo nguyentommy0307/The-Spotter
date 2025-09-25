@@ -1,22 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
-const { spotterSchema } = require('../schemas.js')
+
 const { isLoggedIn } = require('../middleware')
-const ExpressError = require('../utils/ExpressError');
+const { validateSpotter } = require('../middleware')
+const { isAuthor } = require('../middleware')
+
 const spotter = require('../models/spotter')
 
-
-const validateSpotter = (req, res, next) => {
-    const { error } = spotterSchema.validate(req.body);
-
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
 
 router.get('/', catchAsync(async (req, res) => {
     const spotters = await spotter.find({});
@@ -47,28 +38,19 @@ router.get('/:id', catchAsync(async (req, res) => {
     res.render('spotters/show', { spotters })
 }))
 
-router.get('/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
+router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
     const { id } = req.params;
     const spotters = await spotter.findById(id);
     if (!spotters) {
         req.flash('error', 'Cannot find  that spot')
         return res.redirect(`/spotters/${id}`)
     }
-    if (!spotters.author.equals(req.user._id)) {
-        req.flash('error', 'You do not have permission to do that')
-        return res.redirect(`/spotters/${id}`)
-    }
     res.render('spotters/edit', { spotters });
 }))
 
-router.put('/:id', isLoggedIn, validateSpotter, catchAsync(async (req, res) => {
+router.put('/:id', isLoggedIn, isAuthor, validateSpotter, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const Gymspot = await spotter.findById(id);
-    if (!Gymspot.author.equals(req.user._id)) {
-        req.flash('error', 'You do not have permission to do that')
-        return res.redirect(`/spotters/${id}`)
-    }
-    const gym = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
+    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
     req.flash('success', 'Successfully updated gym information')
     res.redirect(`/spotters/${Gymspot._id}`)
 }))

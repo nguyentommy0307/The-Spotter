@@ -1,0 +1,56 @@
+const spotter = require('../models/spotter');
+module.exports.index = async (req, res) => {
+    const spotters = await spotter.find({});
+    res.render('spotters/index', { spotters })
+}
+
+module.exports.renderNewForm = (req, res) => {
+    res.render('spotters/new');
+}
+
+module.exports.createGymspot = async (req, res, next) => {
+    const GymSpot = new spotter(req.body.spotter);
+    GymSpot.author = req.user._id;
+    await GymSpot.save();
+    req.flash('success', 'Successfully put in a new gym!');
+    res.redirect(`/spotters/${GymSpot._id}`)
+}
+
+module.exports.showGymspot = async (req, res) => {
+    const spotters = await spotter.findById(req.params.id).populate({
+        path: 'reviews',
+        populate: {
+            path: 'author'
+        }
+    }).populate('author');
+    console.log(spotters);
+    if (!spotters) {
+        req.flash('error', 'Cannot find that gym');
+        return res.redirect('/spotters');
+    }
+    res.render('spotters/show', { spotters })
+}
+
+module.exports.editGymspot = async (req, res) => {
+    const { id } = req.params;
+    const spotters = await spotter.findById(id);
+    if (!spotters) {
+        req.flash('error', 'Cannot find  that spot')
+        return res.redirect(`/spotters/${id}`)
+    }
+    res.render('spotters/edit', { spotters });
+}
+
+module.exports.updateGymspot = async (req, res) => {
+    const { id } = req.params;
+    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
+    req.flash('success', 'Successfully updated gym information')
+    res.redirect(`/spotters/${Gymspot._id}`)
+}
+
+module.exports.deleteGymspot = async (req, res) => {
+    const { id } = req.params;
+    await spotter.findByIdAndDelete(id);
+    req.flash('success', 'Successfully deleted gym')
+    res.redirect('/spotters');
+}

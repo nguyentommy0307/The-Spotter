@@ -1,4 +1,8 @@
 const spotter = require('../models/spotter');
+const { cloudinary } = require("../cloudinary");
+const maptilerClient = require("@maptiler/client");
+maptilerClient.config.apiKey = process.env.MAPTILER_API_KEY;
+
 module.exports.index = async (req, res) => {
     const spotters = await spotter.find({});
     res.render('spotters/index', { spotters })
@@ -9,9 +13,19 @@ module.exports.renderNewForm = (req, res) => {
 }
 
 module.exports.createGymspot = async (req, res, next) => {
+    const geoData = await maptilerClient.geocoding.forward(req.body.spotter.location, { limit: 1 });
+    // console.log(geoData);
+    if (!geoData.features?.length) {
+        req.flash('error', 'Could not geocode that location. Please try again and enter a valid location.');
+        return res.redirect('/spotters/new');
+    }
     const GymSpot = new spotter(req.body.spotter);
+    GymSpot.geometry = geoData.features[0].geometry;
+    GymSpot.location = geoData.features[0].place_name;
+    GymSpot.image = req.files.map(f => ({ url: f.path, filename: f.filename }))
     GymSpot.author = req.user._id;
     await GymSpot.save();
+    console.log(GymSpot)
     req.flash('success', 'Successfully put in a new gym!');
     res.redirect(`/spotters/${GymSpot._id}`)
 }
@@ -43,11 +57,34 @@ module.exports.editGymspot = async (req, res) => {
 
 module.exports.updateGymspot = async (req, res) => {
     const { id } = req.params;
-    const Gymspot = await spotter.findByIdAndUpdate(id, { ...req.body.spotter });
-    req.flash('success', 'Successfully updated gym information')
-    res.redirect(`/spotters/${Gymspot._id}`)
-}
+    const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
+    // console.log(geoData);
+    if (!geoData.features?.length) {
+        req.flash('error', 'Could not geocode that location. Please try again and enter a valid location.');
+        return res.redirect(`/spotters/${id}/edit`);
+    }
 
+    const Gymspot = await spotter.findById(id);
+    Gymspot.geometry = geoData.features[0].geometry;
+    Gymspot.location = geoData.features[0].place_name;
+
+    Gymspot.set(req.body.spotter);
+
+    const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
+    Gymspot.image.push(...imgs);
+
+    await Gymspot.save();
+
+    if (req.body.deleteImages) {
+        for (let filename of req.body.deleteImages) {
+            await cloudinary.uploader.destroy(filename);
+        }
+        await Gymspot.updateOne({ $pull: { image: { filename: { $in: req.body.deleteImages } } } });
+    }
+
+    req.flash('success', 'Successfully updated gym information');
+    res.redirect(`/spotters/${Gymspot._id}`);
+}
 module.exports.deleteGymspot = async (req, res) => {
     const { id } = req.params;
     await spotter.findByIdAndDelete(id);

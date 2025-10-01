@@ -4,7 +4,7 @@ const { places, descriptors } = require('./seedHelpers');
 const spotter = require('../models/spotter')
 
 
-mongoose.connect('mongodb://localhost:27017/the-spot');
+mongoose.connect('mongodb://localhost:27017/the-spot-maptiler');
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
@@ -22,9 +22,14 @@ const seedDB = async () => {
             author: '68d355c1abf535a07edcbfb0',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
             title: `${sample(places)} ${sample(descriptors)}`,
-            image: `https://picsum.photos/400?random=${Math.random()}`,
             description: 'Gym Photos',
-            price
+            price,
+            image: [
+                {
+                    url: 'https://res.cloudinary.com/dswdxwoaz/image/upload/v1759018606/TheSpots/dmzl3o9mjtyo6vrqcqix.jpg',
+                    filename: 'TheSpots/dmzl3o9mjtyo6vrqcqix'
+                }
+            ]
         })
         await gymSpot.save();
     }

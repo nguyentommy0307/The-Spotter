@@ -4,16 +4,20 @@ const catchAsync = require('../utils/catchAsync');
 const gymspot = require('../controllers/gymspot')
 const { isLoggedIn, validateSpotter, isAuthor } = require('../middleware')
 const spotter = require('../models/spotter')
+const multer = require('multer')
+const { storage } = require('../cloudinary')
+var upload = multer({ storage })
 
 router.route('/')
     .get(catchAsync(gymspot.index))
-    .post(isLoggedIn, validateSpotter, catchAsync(gymspot.createGymspot))
+    .post(isLoggedIn, upload.array('image'), validateSpotter, catchAsync(gymspot.createGymspot))
+
 
 router.get('/new', isLoggedIn, gymspot.renderNewForm)
 
 router.route('/:id')
     .get(catchAsync(gymspot.showGymspot))
-    .put(isLoggedIn, isAuthor, validateSpotter, catchAsync(gymspot.updateGymspot))
+    .put(isLoggedIn, isAuthor, upload.array('image'), validateSpotter, catchAsync(gymspot.updateGymspot))
     .delete(isLoggedIn, catchAsync(gymspot.deleteGymspot))
 
 

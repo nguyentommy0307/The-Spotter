@@ -1,7 +1,8 @@
 <% layout('layouts/boilerplate') %>
+<div id="map" style="width: 100%; height: 500px"></div>
     <h1>Gym Spots</h1>
     <div>
-        <a href="/spotters/new">Add Campground</a>
+        <a href="/spotters/new">Add GymSpot</a>
     </div>
     <% for (let spots of spotters) {%>
         <div class="card" mb-3>
@@ -29,3 +30,19 @@
         </div>
 
         <% } %>
+
+        <%- "<script>" %>
+            const maptilerApiKey = "<%- process.env.MAPTILER_API_KEY %>";
+            const spotters = {
+            type: "FeatureCollection",
+            features: <%- JSON.stringify(
+                spotters.map(spotters => ({
+                type: "Feature",
+                geometry: spotters.geometry,
+                properties: { popUpMarkup: spotters?.properties?.popUpMarkup }
+                }))
+            ) %>
+            };
+        <%- "</script>" %>
+
+<script src="/javascripts/clusterMap.js"></script>

@@ -19,8 +19,15 @@ const seedDB = async () => {
         const random1000 = Math.floor(Math.random() * cities.length);
         const price = Math.floor(Math.random() * 20) + 10
         const gymSpot = new spotter({
-            author: '68d355c1abf535a07edcbfb0',
+            author: '68dc704fa4555062a031fcb0',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
+            geometry: {
+                type: "Point",
+                coordinates: [
+                    cities[random1000].longitude,
+                    cities[random1000].latitude,
+                ]
+            },
             title: `${sample(places)} ${sample(descriptors)}`,
             description: 'Gym Photos',
             price,

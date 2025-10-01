@@ -12,6 +12,8 @@ ImageSchema.virtual('thumbnail').get(function () {
     return this.url.replace('/upload', '/upload/w_200')
 })
 
+const opts = { toJSON: { virtuals: true } };
+
 const SpotterSchema = new Schema({
     title: String,
     image: [ImageSchema],
@@ -37,6 +39,12 @@ const SpotterSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Review'
     }]
+}, opts);
+
+SpotterSchema.virtual('properties.popUpMarkup').get(function () {
+    return `
+    <strong><a href="/spotters/${this._id}">${this.title}</a></strong>
+    <p>${this.description.substring(0, 20)}...</p>`
 });
 
 SpotterSchema.post('findOneAndDelete', async function (doc) {

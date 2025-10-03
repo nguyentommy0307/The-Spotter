@@ -21,8 +21,12 @@ const userRoutes = require('./routes/users')
 const spotterRoutes = require('./routes/spotter')
 const reviewRoutes = require('./routes/review')
 
+const MongoStore = require('connect-mongo');
+const dbUrl = 'mongodb://localhost:27017/the-spot-maptiler'
+// const dbUrl = process.env.DB_URL
 
-mongoose.connect('mongodb://localhost:27017/the-spot-maptiler');
+
+mongoose.connect(dbUrl);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
@@ -41,7 +45,20 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(mongoSanitize())
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: 'thisshouldbeabettersecret!'
+    }
+});
+
+store.on("error", function (e) {
+    console.log("Session Store Error", e)
+})
+
 const sessionConfig = {
+    store,
     name: 'GetBigSession',
     secret: 'thisshouldbeabettersecret!',
     resave: false,

@@ -92,6 +92,7 @@ const styleSrcUrls = [
 const connectSrcUrls = [
     "https://api.maptiler.com/"
 ];
+const fontSrcUrls = [];
 app.use(
     helmet.contentSecurityPolicy({
         directives: {
@@ -108,6 +109,7 @@ app.use(
                 "https://res.cloudinary.com/dswdxwoaz/", 
                 "https://api.maptiler.com/"
             ],
+            fontSrc: ["'self'", ...fontSrcUrls],
         },
     })
 );
